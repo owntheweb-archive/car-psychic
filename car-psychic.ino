@@ -4,11 +4,14 @@
  * Distributed as-is; no warranty is given.
  ******************************************************************************/
 #include <Wire.h>  // Include Wire if you're using I2C
-#include <SFE_MicroOLED.h>  // Include the SFE_MicroOLED library
+#include <SFE_MicroOLED.h>  // Include the SparkFun MicroOLED library
+#include <SparkFun_RV1805.h> // Include SparkFun Real Time Clock (RTC) library
+#include <SparkFun_Qwiic_OpenLog_Arduino_Library.h> // Include SparkFun OpenLog library
 
 #include "OledWarpField.h"; // A star warp field for SparkFun Micro OLED Qwiic
 #include "OledOilChangePrediction.h"; // Show hours/days prediction to the next oil change on a SparkFun Micro OLED Qwiic
 #include "OledTroubleCodes.h"; // Cycle through active trouble code alerts on a SparkFun Micro OLED Qwiic
+#include "MileLogger.h": // Log car's miles with SparkFun OpenLog Qwiic, SparkFun Real Time Clock Module - RV-1805 (Qwiic) and SparkFun Car Diagnostics Kit
 
 // set state of app, determining what will be displayed
 const byte STATE_OIL_CHANGE_PREDICTION = 0;
@@ -34,6 +37,17 @@ OledWarpField oledWarpField(oled, 15);
 String troubleCodes[10]; // make room for up to 10 trouble codes for now
 OledTroubleCodes oledTroubleCodes(oled);
 
+// create instance of RTC clock
+RV1805 rtc;
+
+// create instance of OpenLog
+const int ledPin = 13; //Status LED connected to digital pin 13
+const byte OpenLogAddress = 42; //Default Qwiic OpenLog I2C address
+OpenLog openLog;
+
+// create instance of MileLogger class
+MileLogger mileLogger(rtc, openLog);
+
 // next oil change prediction
 float nextOilChangeHours;
 OledOilChangePrediction oledOilChangePrediction(oled);
@@ -42,14 +56,26 @@ OledOilChangePrediction oledOilChangePrediction(oled);
 void setup() {
   // serial output for troubleshooting (may want to consider removing in future?)
   setupSerial();
+
+  // Qwiic/I2C setup
+  setupWire();
+
+  // OpenLog setup
+  setupOpenLog();
   
-  // OLED setup
+  // SparkFun OLED setup
   setupOled();
+
+  // SparkFun RTC setup
+  setupRtc();
+
+  // mile logger setup
+  mileLogger.setup();
 
   // warp field background display setup
   oledWarpField.setup();
 
-  // oil change prediction displayed over warp field background setup
+  // oil change prediction shown over warp field background setup
   oledOilChangePrediction.setup();
 
   // trouble code display setup
@@ -64,6 +90,7 @@ void setup() {
   nextOilChangeHours = 550;
   oledOilChangePrediction.setOilChangeHours(nextOilChangeHours);
   setState(STATE_OIL_CHANGE_PREDICTION);
+  // END TEMPORARY
 
   // set initial state
   //setState(STATE_OIL_CHANGE_PREDICTION);
@@ -73,7 +100,8 @@ void setup() {
 void loop() {
   oled.clear(PAGE);  // Clear the OLED buffer
   //checkForTroubleCodes();
-  
+
+  mileLogger.loop();
   oledWarpField.loop();
   oledTroubleCodes.loop();
   oledOilChangePrediction.loop();
@@ -101,18 +129,39 @@ void setupSerial()
   Serial.println("Debugging has begun.");
 }
 
-// OLED setup
-void setupOled()
+// Wire setup
+void setupWire()
 {
   delay(100);
   Wire.begin();
   // increase clock speed to reduce OLED animation lag (check this: Is this ok for all Qwiic modules?)
   Wire.setClock(400000L);
+}
+
+// OpenLog setup
+void setupOpenLog()
+{
+  pinMode(ledPin, OUTPUT);
+  openLog.begin();
+}
+
+// OLED setup
+void setupOled()
+{
   oled.begin();    // Initialize the OLED
   oled.clear(ALL); // Clear the display's internal memory
   oled.display();  // Display what's in the buffer (splashscreen)
   delay(1000);     // Delay 1000 ms
   oled.clear(PAGE); // Clear the buffer.
+}
+
+// real time clock setup
+void setupRtc()
+{
+  if (rtc.begin() == false) {
+    Serial.println("Something went wrong with RTC. Check wiring.");
+  }
+  rtc.set24Hour();
 }
 
 // set state of the app
