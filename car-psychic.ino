@@ -11,7 +11,10 @@
 #include "OledWarpField.h"; // A star warp field for SparkFun Micro OLED Qwiic
 #include "OledOilChangePrediction.h"; // Show hours/days prediction to the next oil change on a SparkFun Micro OLED Qwiic
 #include "OledTroubleCodes.h"; // Cycle through active trouble code alerts on a SparkFun Micro OLED Qwiic
-#include "MileLogger.h": // Log car's miles with SparkFun OpenLog Qwiic, SparkFun Real Time Clock Module - RV-1805 (Qwiic) and SparkFun Car Diagnostics Kit
+#include "Obd2.h"; // Communicate with the car via SparkFun Car OBD-II UART
+#include "FuelTankLogger.h"; // Log car's fuel tank levels with SparkFun OpenLog Qwiic, SparkFun Real Time Clock Module - RV-1805 (Qwiic) and SparkFun OBD-II UART
+// TODO: I was mistaken in that I could get accurate miles from OBD-II. I may be able to use miles since code clear with "0131" query though
+// #include "MileLogger.h": // Log car's miles with SparkFun OpenLog Qwiic, SparkFun Real Time Clock Module - RV-1805 (Qwiic) and SparkFun Car OBD-II UART
 
 // set state of app, determining what will be displayed
 const byte STATE_OIL_CHANGE_PREDICTION = 0;
@@ -45,8 +48,14 @@ const int ledPin = 13; //Status LED connected to digital pin 13
 const byte OpenLogAddress = 42; //Default Qwiic OpenLog I2C address
 OpenLog openLog;
 
+// create instance of Obd2 class
+Obd2 obd2;
+
 // create instance of MileLogger class
-MileLogger mileLogger(rtc, openLog);
+// MileLogger mileLogger(rtc, openLog);
+
+// create instance of FuelTankLogger class
+FuelTankLogger fuelTankLogger(rtc, openLog, obd2);
 
 // next oil change prediction
 float nextOilChangeHours;
@@ -69,8 +78,14 @@ void setup() {
   // SparkFun RTC setup
   setupRtc();
 
+  // OBD-II UART setup
+  obd2.setup();
+
   // mile logger setup
-  mileLogger.setup();
+  // mileLogger.setup();
+
+  // fuek tank level logger setup
+  fuelTankLogger.setup();
 
   // warp field background display setup
   oledWarpField.setup();
@@ -101,7 +116,8 @@ void loop() {
   oled.clear(PAGE);  // Clear the OLED buffer
   //checkForTroubleCodes();
 
-  mileLogger.loop();
+  // mileLogger.loop();
+  fuelTankLogger.loop();
   oledWarpField.loop();
   oledTroubleCodes.loop();
   oledOilChangePrediction.loop();
@@ -117,8 +133,6 @@ void loop() {
     demoLoopFramesInt = 0;
     demoLoopFramesToggle = !demoLoopFramesToggle;
   }
-  
-  //animateOilChangePrediction(); // reveal oil change date
   oled.display(); // Draw the OLED memory buffer
 }
 
@@ -126,7 +140,8 @@ void loop() {
 void setupSerial()
 {
   Serial.begin(9600);
-  Serial.println("Debugging has begun.");
+  // TODO: Debug messages need to be moved off Serial as OBD-II is listening to it
+  // Serial.println("Debugging has begun.");
 }
 
 // Wire setup
@@ -159,7 +174,8 @@ void setupOled()
 void setupRtc()
 {
   if (rtc.begin() == false) {
-    Serial.println("Something went wrong with RTC. Check wiring.");
+    // TODO: Debug messages need to be moved off Serial as OBD-II is listening to it
+    // Serial.println("Something went wrong with RTC. Check wiring.");
   }
   rtc.set24Hour();
 }
@@ -178,17 +194,9 @@ void setState(byte newState) {
       oledOilChangePrediction.setAnimate(0);
       oledTroubleCodes.setAnimate(1);
       break;
-    default:
-      Serial.println("An unknown state attempted to be set.");
+    // default:
+      // TODO: Debug messages need to be moved off Serial as OBD-II is listening to it
+      // Serial.println("An unknown state attempted to be set.");
   }
   state = newState;
-}
-
-///////////////////////////
-// oil change prediction //
-///////////////////////////
-
-void predictNextOilChange()
-{
-  // oh goodness where to start...
 }
