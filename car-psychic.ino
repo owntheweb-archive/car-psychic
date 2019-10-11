@@ -140,8 +140,7 @@ void loop() {
 void setupSerial()
 {
   Serial.begin(9600);
-  // TODO: Debug messages need to be moved off Serial as OBD-II is listening to it
-  // Serial.println("Debugging has begun.");
+  Serial.println("Debugging has begun.");
 }
 
 // Wire setup
@@ -174,8 +173,7 @@ void setupOled()
 void setupRtc()
 {
   if (rtc.begin() == false) {
-    // TODO: Debug messages need to be moved off Serial as OBD-II is listening to it
-    // Serial.println("Something went wrong with RTC. Check wiring.");
+    Serial.println("Something went wrong with RTC. Check wiring.");
   }
   rtc.set24Hour();
 }
@@ -194,9 +192,8 @@ void setState(byte newState) {
       oledOilChangePrediction.setAnimate(0);
       oledTroubleCodes.setAnimate(1);
       break;
-    // default:
-      // TODO: Debug messages need to be moved off Serial as OBD-II is listening to it
-      // Serial.println("An unknown state attempted to be set.");
+    default:
+      Serial.println("An unknown state attempted to be set.");
   }
   state = newState;
 }

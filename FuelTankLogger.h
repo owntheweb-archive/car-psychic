@@ -21,7 +21,7 @@
   OpenLog& openLog; // reference shared OpenLog instance
   Obd2& obd2; // reference shared Obd2 instance
   RtcUtils rtcUtils; // create RTC utils instance
-  int logFrames = 360; // time interval or number of "frames" between logs. 1760 = 1 min-ish
+  int logFrames = 1760; // time interval or number of "frames" between logs. 1760 = 1 min-ish
   int logFramesInt = 0;
   int lastFuelTankLevel;
   String lastDateTime;
@@ -42,16 +42,7 @@
     void setup()
     {
       Serial.begin(9600);
-      // Reset the OBD-II-UART
-      Serial.println("ATZ");
-      
-      // log FuelTankLevel at start, also setting currentFuelTankLevel for use in display
-      // add a delay to give time for car wake up
-      delay(2000);
-
-      // Delete any data that may be in the serial port before we begin.
-      Serial.flush();
-  
+      this->obd2.setup();
       this->logFuelTankLevel();
     }
 
@@ -93,12 +84,10 @@
         this->writeLog();
       } else {
         if (this->lastFuelTankLevel < 0) {
-          // TODO: Errors need to be moved off Serial as OBD-II is listening to it
-          // Serial.println("Unable to get FuelTankLevel.");
+          Serial.println("Unable to get FuelTankLevel.");
         }
         if (this->lastDateTime == "") {
-          // TODO: Errors need to be moved off Serial as OBD-II is listening to it
-          // Serial.println("Unable to get date/time.");
+          Serial.println("Unable to get date/time.");
         }
       }
     }
@@ -110,8 +99,7 @@
       this->openLog.append(this->logFileName);
       this->openLog.println(logLine);
       this->openLog.syncFile();
-      // TODO: Debug messages need to be moved off Serial as OBD-II is listening to it
-      // Serial.println("FuelTankLevel logged: " + logLine);
+      Serial.println("FuelTankLevel logged: " + logLine);
     }
 };
 
