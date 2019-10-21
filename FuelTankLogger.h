@@ -74,18 +74,15 @@
     void logFuelTankLevel()
     {
       // get fuel tank level
-      this->lastFuelTankLevel = this->obd2.getFuelTankLevel();
+      // this->lastFuelTankLevel = this->obd2.getFuelTankLevel();
 
       // get the timestamp
       this->lastDateTime = this->rtcUtils.getDateTime(this->rtc);
 
       // write log
-      if (this->lastFuelTankLevel >= 0 && this->lastDateTime != "") {
+      if (this->lastDateTime != "") {
         this->writeLog();
       } else {
-        if (this->lastFuelTankLevel < 0) {
-          Serial.println("Unable to get FuelTankLevel.");
-        }
         if (this->lastDateTime == "") {
           Serial.println("Unable to get date/time.");
         }
@@ -95,7 +92,7 @@
     // write date/time and mileCount to the log
     void writeLog()
     {
-      String logLine = this->lastDateTime + " " + this->lastFuelTankLevel;
+      String logLine = this->lastDateTime;
       this->openLog.append(this->logFileName);
       this->openLog.println(logLine);
       this->openLog.syncFile();
