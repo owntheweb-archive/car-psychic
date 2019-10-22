@@ -9,10 +9,7 @@
  #include <Arduino.h>
 
  class Obd2 {
-  // This is a character buffer that will store the data from the serial port (OBD-II-UART):
-  char rxData[20];
-  char rxIndex = 0;
-
+  
   // public class methods
   public:
     // constructor
@@ -48,172 +45,122 @@
     // PID 0106
     int getShortTermFuelTrimBank1(void)
     {
-      this->makePidRequest("0106");
-      if (this->rxData == "N") {
-        return NULL;
-      }
-      return strtol(&this->rxData[6], 0, 16);
+      const char* response = this->makePidRequest("0106");
+      // if response is not null, return hex-to-int value, otherwise return null
+      // OBD-II UART returns something in this format: "41 0D 00" (with fewer or more hex value sets per reading, third set+ as value(s)), needs to be converted to something more "English", an integer a good start
+      return response ? strtol(&response[6], 0, 16) : NULL;
     }
 
     // get long term fuel trim, bank 1: -100 (reduce fuel, too rich) - 99.2 (add fuel, too lean)
     // PID 0107
     int getLongTermFuelTrimBank1(void)
     {
-      this->makePidRequest("0107");
-      if (this->rxData == "N") {
-        return NULL;
-      }
-      return strtol(&this->rxData[6], 0, 16);
+      const char* response = this->makePidRequest("0107");
+      return response ? strtol(&response[6], 0, 16) : NULL;
     }
 
     // get short term fuel trim, bank 2: -100 (reduce fuel, too rich) - 99.2 (add fuel, too lean)
     // PID 0108
     int getShortTermFuelTrimBank2(void)
     {
-      this->makePidRequest("0108");
-      if (this->rxData == "N") {
-        return NULL;
-      }
-      return strtol(&this->rxData[6], 0, 16);
+      const char* response = this->makePidRequest("0108");
+      return response ? strtol(&response[6], 0, 16) : NULL;
     }
 
     // get long term fuel trim, bank 2: -100 (reduce fuel, too rich) - 99.2 (add fuel, too lean)
     // PID 0109
     int getLongTermFuelTrimBank2(void)
     {
-      this->makePidRequest("0109");
-      if (this->rxData == "N") {
-        return NULL;
-      }
-      return strtol(&this->rxData[6], 0, 16);
+      const char* response = this->makePidRequest("0109");
+      return response ? strtol(&response[6], 0, 16) : NULL;
     }
 
     // get speed: 0 - 255 km/h
     // PID 010D
     int getSpeed(void)
     {
-      this->makePidRequest("010D");
-      if (this->rxData == "N") {
-        return NULL;
-      }
-      return strtol(&this->rxData[6], 0, 16);
+      const char* response = this->makePidRequest("010D");
+      return response ? strtol(&response[6], 0, 16) : NULL;
     }
 
     // get intake air temperature: -40 - 215 °C
     // PID 010F
     int getAirIntakeTemp(void)
     {
-      this->makePidRequest("010F");
-      if (this->rxData == "N") {
-        return NULL;
-      }
-      return strtol(&this->rxData[6], 0, 16);
+      const char* response = this->makePidRequest("010F");
+      return response ? strtol(&response[6], 0, 16) : NULL;
     }
 
     // get run time since engine start: 0 - 65,535 seconds
     // PID 011F
     int getRunTimeSinceEngineStart(void)
     {
-      this->makePidRequest("011F");
-      if (this->rxData == "N") {
-        return NULL;
-      }
-      // TODO DRAFT: Check/alter this:
-      return (strtol(&rxData[6],0,16) * 256) + strtol(&this->rxData[9],0,16);
+      const char* response = this->makePidRequest("011F");
+      return response ? ((strtol(&response[6],0,16) * 256) + strtol(&response[9],0,16)) : NULL;
     }
 
     // get distance traveled with malfunction indicator lamp (MIL) on: 0 - 65,535 km
     // PID 0121
     int getDistanceWithMilOn(void)
     {
-      this->makePidRequest("0121");
-      if (this->rxData == "N") {
-        return NULL;
-      }
-      // TODO DRAFT: Check/alter this:
-      return (strtol(&rxData[6],0,16) * 256) + strtol(&this->rxData[9],0,16);
+      const char* response = this->makePidRequest("0121");
+      return response ? ((strtol(&response[6],0,16) * 256) + strtol(&response[9],0,16)) : NULL;
     }
 
     // get warm-ups since codes cleared: 0 - 255 count
     // PID 0130
     int getWarmupsSinceCodesCleared(void)
     {
-      this->makePidRequest("0130");
-      if (this->rxData == "N") {
-        return NULL;
-      }
-      return strtol(&this->rxData[6], 0, 16);
+      const char* response = this->makePidRequest("0130");
+      return response ? strtol(&response[6], 0, 16) : NULL;
     }
 
     // get distance traveled since codes cleared: 0 - 65,535 km
     // PID 0131
     int getDistanceSinceCodesCleared(void)
     {
-      this->makePidRequest("0131");
-      if (this->rxData == "N") {
-        return NULL;
-      }
-      // TODO DRAFT: Check/alter this:
-      return (strtol(&rxData[6],0,16) * 256) + strtol(&this->rxData[9],0,16);
+      const char* response = this->makePidRequest("0131");
+      return response ? ((strtol(&response[6],0,16) * 256) + strtol(&response[9],0,16)) : NULL;
     }
 
     // get absolute barometric pressure: 0 - 255 kPa
     // PID 0133
     int getAbsoluteBarametricPressure(void)
     {
-      this->makePidRequest("0133");
-      if (this->rxData == "N") {
-        return NULL;
-      }
-      return strtol(&this->rxData[6], 0, 16);
+      const char* response = this->makePidRequest("0133");
+      return response ? strtol(&response[6], 0, 16) : NULL;
     }
 
     // get absolute load value: 0 - 25,700 %
     // PID 0143
     int getAbsoluteLoadValue(void)
     {
-      this->makePidRequest("0143");
-      if (this->rxData == "N") {
-        return NULL;
-      }
-      // TODO DRAFT: Check/alter this:
-      return (strtol(&rxData[6],0,16) * 256) + strtol(&this->rxData[9],0,16);
+      const char* response = this->makePidRequest("0143");
+      return response ? ((strtol(&response[6],0,16) * 256) + strtol(&response[9],0,16)) : NULL;
     }
 
     // get time run with MIL on: 0 - 65,535 minutes
     // PID 014D
     int getTimeRunWithMilOn(void)
     {
-      this->makePidRequest("014D");
-      if (this->rxData == "N") {
-        return NULL;
-      }
-      // TODO DRAFT: Check/alter this:
-      return (strtol(&rxData[6],0,16) * 256) + strtol(&this->rxData[9],0,16);
+      const char* response = this->makePidRequest("014D");
+      return response ? ((strtol(&response[6],0,16) * 256) + strtol(&response[9],0,16)) : NULL;
     }
 
     // get time since trouble codes cleared: 0 - 65,535 minutes
     // PID 014E
     int getTimeSinceTroubleCodesCleared(void)
     {
-      this->makePidRequest("014E");
-      if (this->rxData == "N") {
-        return NULL;
-      }
-      // TODO DRAFT: Check/alter this:
-      return (strtol(&rxData[6],0,16) * 256) + strtol(&this->rxData[9],0,16);
+      const char* response = this->makePidRequest("014E");
+      return response ? ((strtol(&response[6],0,16) * 256) + strtol(&response[9],0,16)) : NULL;
     }
 
     // get absolute evap system vapor pressure: 0 - 327.675 kPa
     // PID 0153
     int getAbsoluteEvapSystemVaporPressure(void)
     {
-      this->makePidRequest("0153");
-      if (this->rxData == "N") {
-        return NULL;
-      }
-      // TODO DRAFT: Check/alter this:
-      return (strtol(&rxData[6],0,16) * 256) + strtol(&this->rxData[9],0,16);
+      const char* response = this->makePidRequest("0153");
+      return response ? ((strtol(&response[6],0,16) * 256) + strtol(&response[9],0,16)) : NULL;
     }
 
     // too bad, so sad for my Toyota (no data, perhaps with hidden proprietary PIDs or newer than 2016 cars?):
@@ -224,42 +171,44 @@
     // Example: 014E
     // 01 = mode 1 (current data)
     // 2F = PID for mode 1 -> get current time since trouble codes cleared
-    void makePidRequest(String pid)
+    char* makePidRequest(String pid)
     {
       Serial1.flush();
       Serial1.println(pid);
       // give it time to respond
       delay(200);
-      this->getObd2Response();
-      Serial1.flush();
+      return this->getObd2Response();
     }
     
-
-    // thanks: https://forum.sparkfun.com/viewtopic.php?t=35507
-    void getObd2Response(void)
+    // get response from OBD-II UART
+    // many thanks: https://forum.sparkfun.com/viewtopic.php?t=35507
+    char* getObd2Response()
     {
-      char c;
-      if (Serial1.available() > 0) {
-        do {
-          c = Serial1.read();
-          
-          // cut off the response if it is too big for some reason
-          if (this->rxIndex >= 19) {
-            c = '>';
-          }
-          
-          if((c!= '>') && (c!='\r') && (c!='\n')) {
-            this->rxData[this->rxIndex++] = c; //Add whatever we receive to the buffer
-          }
-        } while(c != '>'); // The ELM327 ends its response with this char so when we get it we exit out.
-        this->rxData[this->rxIndex++] = '\0';// Converts the array into a string
-        this->rxIndex=0; // Set this to 0 so next time we call the read we get a "clean buffer"
-      } else {
-        // return "N" for "no data"
-        this->rxData[this->rxIndex++] = 'N';
-        this->rxData[this->rxIndex++] = '\0'; // Converts the array into a string
-        this->rxIndex=0; // Set this to 0 so next time we call the read we get a "clean buffer"
+      char c; // currently read character
+      char rxData[20]; // character buffer to store the data from the serial port
+      char rxIndex = 0; // character buffer index to write to
+
+      // don't get data if unavailable
+      if (Serial1.available() <= 0) {
+        return NULL;
       }
+
+      // do get data if available
+      do {
+        c = Serial1.read();
+        
+        // cut off the response if it is too big for some reason
+        if (rxIndex >= 19) {
+          c = '>';
+        }
+        
+        if((c!= '>') && (c!='\r') && (c!='\n')) {
+          rxData[rxIndex++] = c; // add whatever we receive to the buffer
+        }
+      } while(c != '>'); // the ELM327 ends its response with this char so when we get it we exit out.
+      
+      rxData[rxIndex++] = '\0'; // convert char array into a string
+      return rxData;
     }
 };
 
