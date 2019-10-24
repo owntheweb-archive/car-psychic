@@ -99,7 +99,7 @@
     int getRunTimeSinceEngineStart(void)
     {
       const bool response = this->makePidRequest("011F");
-      return response ? ((strtol(&rxData[6],0,16) * 256) + strtol(&rxData[9],0,16)) : -999;
+      return response ? ((strtol(&rxData[6],0,16) * 255) + strtol(&rxData[9],0,16)) : -999;
     }
 
     // get distance traveled with malfunction indicator lamp (MIL) on: 0 - 65,535 km
@@ -107,7 +107,7 @@
     int getDistanceWithMilOn(void)
     {
       const bool response = this->makePidRequest("0121");
-      return response ? ((strtol(&rxData[6],0,16) * 256) + strtol(&rxData[9],0,16)) : -999;
+      return response ? ((strtol(&rxData[6],0,16) * 255) + strtol(&rxData[9],0,16)) : -999;
     }
 
     // get warm-ups since codes cleared: 0 - 255 count
@@ -123,7 +123,7 @@
     int getDistanceSinceCodesCleared(void)
     {
       const bool response = this->makePidRequest("0131");
-      return response ? ((strtol(&rxData[6],0,16) * 256) + strtol(&rxData[9],0,16)) : -999;
+      return response ? ((strtol(&rxData[6],0,16) * 255) + strtol(&rxData[9],0,16)) : -999;
     }
 
     // get absolute barometric pressure: 0 - 255 kPa
@@ -139,7 +139,7 @@
     int getAbsoluteLoadValue(void)
     {
       const bool response = this->makePidRequest("0143");
-      return response ? ((strtol(&rxData[6],0,16) * 256) + strtol(&rxData[9],0,16)) : -999;
+      return response ? ((strtol(&rxData[6],0,16) * 255) + strtol(&rxData[9],0,16)) : -999;
     }
 
     // get time run with MIL on: 0 - 65,535 minutes
@@ -147,7 +147,7 @@
     int getTimeRunWithMilOn(void)
     {
       const bool response = this->makePidRequest("014D");
-      return response ? ((strtol(&rxData[6],0,16) * 256) + strtol(&rxData[9],0,16)) : -999;
+      return response ? ((strtol(&rxData[6],0,16) * 255) + strtol(&rxData[9],0,16)) : -999;
     }
 
     // get time since trouble codes cleared: 0 - 65,535 minutes
@@ -155,7 +155,7 @@
     int getTimeSinceTroubleCodesCleared(void)
     {
       const bool response = this->makePidRequest("014E");
-      return response ? ((strtol(&rxData[6],0,16) * 256) + strtol(&rxData[9],0,16)) : -999;
+      return response ? ((strtol(&rxData[6],0,16) * 255) + strtol(&rxData[9],0,16)) : -999;
     }
 
     // get absolute evap system vapor pressure: 0 - 327.675 kPa
@@ -163,7 +163,7 @@
     int getAbsoluteEvapSystemVaporPressure(void)
     {
       const bool response = this->makePidRequest("0153");
-      return response ? ((strtol(&rxData[6],0,16) * 256) + strtol(&rxData[9],0,16)) : -999;
+      return response ? ((strtol(&rxData[6],0,16) * 255) + strtol(&rxData[9],0,16)) : -999;
     }
 
     // too bad, so sad for my Toyota (no data, perhaps with hidden proprietary PIDs or newer than 2016 cars?):
