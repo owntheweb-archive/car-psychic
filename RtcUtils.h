@@ -28,7 +28,7 @@
         return(date);
       }
       // else unable to connect/update rtc date
-      return "";
+      return (char*) 0;
     }
 };
 

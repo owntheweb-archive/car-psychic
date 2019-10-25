@@ -8,11 +8,11 @@
 #include <SparkFun_RV1805.h> // Include SparkFun Real Time Clock (RTC) library
 #include <SparkFun_Qwiic_OpenLog_Arduino_Library.h> // Include SparkFun OpenLog library
 
-#include "oledWarpField.h"; // A star warp field for SparkFun Micro OLED Qwiic
-#include "oledOilChangePrediction.h"; // Show hours/days prediction to the next oil change on a SparkFun Micro OLED Qwiic
-#include "OledTroubleCodes.h"; // Cycle through active trouble code alerts on a SparkFun Micro OLED Qwiic
-#include "Obd2.h"; // Communicate with the car via SparkFun Car OBD-II UART
-#include "DataLogger.h"; // Log car data with SparkFun OpenLog Qwiic, SparkFun Real Time Clock Module - RV-1805 (Qwiic) and SparkFun OBD-II UART
+#include "OledWarpField.h" // A star warp field for SparkFun Micro OLED Qwiic
+#include "OledOilChangePrediction.h" // Show hours/days prediction to the next oil change on a SparkFun Micro OLED Qwiic
+#include "OledTroubleCodes.h" // Cycle through active trouble code alerts on a SparkFun Micro OLED Qwiic
+#include "Obd2.h" // Communicate with the car via SparkFun Car OBD-II UART
+#include "DataLogger.h" // Log car data with SparkFun OpenLog Qwiic, SparkFun Real Time Clock Module - RV-1805 (Qwiic) and SparkFun OBD-II UART
 
 // set state of app, determining what will be displayed
 const byte STATE_OIL_CHANGE_PREDICTION = 0;
@@ -26,7 +26,7 @@ int demoLoopFramesToggle = true;
 
 // MicroOLED
 //The library assumes a reset pin is necessary. The Qwiic OLED has RST hard-wired, so pick an arbitrarty IO pin that is not being used
-#define PIN_RESET 9  
+#define PIN_RESET 9
 //The DC_JUMPER is the I2C Address Select jumper. Set to 1 if the jumper is open (Default), or set to 0 if it's closed.
 #define DC_JUMPER 1
 MicroOLED* oled;
@@ -63,10 +63,10 @@ void setup() {
   // serial output for troubleshooting (may want to consider removing in future?)
   setupSerial();
 
-  // Qwiic/I2C setup
+  // Qwiic/I2C communication setup
   setupWire();
 
-  // OpenLog setup
+  // SparkFun OpenLog setup
   setupOpenLog();
   
   // SparkFun OLED setup
@@ -153,7 +153,6 @@ void setupWire()
 // OpenLog setup
 void setupOpenLog()
 {
-  pinMode(ledPin, OUTPUT); // TODO: Does this need to be removed?
   openLog = new OpenLog();
   openLog->begin();
 }
