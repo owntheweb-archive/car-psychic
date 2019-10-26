@@ -114,7 +114,7 @@ void setup() {
 void loop() {
   oled->clear(PAGE);  // Clear the OLED buffer
   //checkForTroubleCodes();
-
+  obd2->loop();
   dataLogger->loop();
   oledWarpField->loop();
   oledTroubleCodes->loop();
