@@ -104,10 +104,9 @@
     }
 
     // get the requested data once it is ready
-    // TODO: consider converting integer values based on PID formulas, e.g. 0-100 vs 0-255 for a percentage reading, etc.
-    // See table at: https://en.wikipedia.org/wiki/OBD-II_PIDs (value ranges listed below don't match)
+    // See table at: https://en.wikipedia.org/wiki/OBD-II_PIDs
     // Good to know: keep in mind that not all generic PIDs are supported by all cars. For example:
-    // My Toyota doesn't produce data for the following (among others):
+    // Toyota tested here doesn't produce data for the following (among others e.g. you usually wouldn't get NOx sensor corrected data from a Camry...):
     // 012F: fuel tank level input
     // 01A6: odometer (this one is very new I think)
     int getRequestedData()
@@ -116,19 +115,19 @@
         if (this->lastRequestPid == SHORT_TERM_FUEL_TRIM_BANK_1) {
           // get short term fuel trim, bank 1: -100 (reduce fuel, too rich) - 99.2 (add fuel, too lean)
           // PID 0106
-          return strtol(&rxData[6], 0, 16);
+          return (100 / 128 * strtol(&rxData[6], 0, 16)) - 100;
         } else if (this->lastRequestPid == LONG_TERM_FUEL_TRIM_BANK_1) {
           // get long term fuel trim, bank 1: -100 (reduce fuel, too rich) - 99.2 (add fuel, too lean)
           // PID 0107
-          return strtol(&rxData[6], 0, 16);
+          return (100 / 128 * strtol(&rxData[6], 0, 16)) - 100;
         } else if (this->lastRequestPid == SHORT_TERM_FUEL_TRIM_BANK_2) {
           // get short term fuel trim, bank 2: -100 (reduce fuel, too rich) - 99.2 (add fuel, too lean)
           // PID 0108
-          return strtol(&rxData[6], 0, 16);
+          return (100 / 128 * strtol(&rxData[6], 0, 16)) - 100;
         } else if (this->lastRequestPid == LONG_TERM_FUEL_TRIM_BANK_2) {
           // get long term fuel trim, bank 2: -100 (reduce fuel, too rich) - 99.2 (add fuel, too lean)
           // PID 0109
-          return strtol(&rxData[6], 0, 16);
+          return (100 / 128 * strtol(&rxData[6], 0, 16)) - 100;
         } else if (this->lastRequestPid == SPEED) {
           // get speed: 0 - 255 km/h
           // PID 010D
@@ -140,39 +139,39 @@
         } else if (this->lastRequestPid == RUN_TIME_SINCE_ENGINE_START) {
           // get run time since engine start: 0 - 65,535 seconds
           // PID 011F
-          return (strtol(&rxData[6],0,16) * 255) + strtol(&rxData[9],0,16);
+          return (strtol(&rxData[6],0,16) * 256) + strtol(&rxData[9],0,16);
         } else if (DISTANCE_WITH_MIL_ON) {
           // get distance traveled with malfunction indicator lamp (MIL) on: 0 - 65,535 km
           // PID 0121
-          return (strtol(&rxData[6],0,16) * 255) + strtol(&rxData[9],0,16);
+          return (strtol(&rxData[6],0,16) * 256) + strtol(&rxData[9],0,16);
         } else if (this->lastRequestPid == WARMUPS_SINCE_CODES_CLEARED) {
-          // get warm-ups since codes cleared: 0 - 255 count
+          // get warm-ups since codes cleared: 0 - 256 count
           // PID 0130
           return strtol(&rxData[6], 0, 16);
         } else if (this->lastRequestPid == DISTANCE_SINCE_CODES_CLEARED) {
           // get distance traveled since codes cleared: 0 - 65,535 km
           // PID 0131
-          return (strtol(&rxData[6],0,16) * 255) + strtol(&rxData[9],0,16);
+          return (strtol(&rxData[6],0,16) * 256) + strtol(&rxData[9],0,16);
         } else if (this->lastRequestPid == ABSOLUTE_BARAMETRIC_PRESSURE) {
-          // get absolute barometric pressure: 0 - 255 kPa
+          // get absolute barometric pressure: 0 - 256 kPa
           // PID 0133
           return strtol(&rxData[6], 0, 16);
         } else if (this->lastRequestPid == ABSOLUTE_LOAD_VALUE) {
           // get absolute load value: 0 - 25,700 %
           // PID 0143
-          return (strtol(&rxData[6],0,16) * 255) + strtol(&rxData[9],0,16);
+          return 100 / 255 * ((strtol(&rxData[6],0,16) * 256) + strtol(&rxData[9],0,16));
         } else if (this->lastRequestPid == TIME_RUN_WITH_MIL_ON) {
           // get time run with MIL on: 0 - 65,535 minutes
           // PID 014D
-          return (strtol(&rxData[6],0,16) * 255) + strtol(&rxData[9],0,16);
+          return (strtol(&rxData[6],0,16) * 256) + strtol(&rxData[9],0,16);
         } else if (this->lastRequestPid == TIME_SINCE_TROUBLE_CODES_CLEARED) {
           // get time since trouble codes cleared: 0 - 65,535 minutes
           // PID 014E
-          return (strtol(&rxData[6],0,16) * 255) + strtol(&rxData[9],0,16);
+          return (strtol(&rxData[6],0,16) * 256) + strtol(&rxData[9],0,16);
         } else if (this->lastRequestPid == ABSOLUTE_EVAP_SYSTEM_VAPOR_PRESSURE) {
           // get time since trouble codes cleared: 0 - 65,535 minutes
           // PID 014E
-          return (strtol(&rxData[6],0,16) * 255) + strtol(&rxData[9],0,16);
+          return ((strtol(&rxData[6],0,16) * 256) + strtol(&rxData[9],0,16)) / 200;
         } else {
           // no match
           return -999;
