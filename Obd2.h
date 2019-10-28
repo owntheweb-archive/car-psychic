@@ -94,7 +94,7 @@
       
       Serial1.flush();
       Serial1.println(pid);
-      this->getObd2Response();
+      // a 200ms or so delay is required here at 9600 baud before requesting result of the request, accomplished here without delay() (obdBusy)
     }
 
     // Did the last request succeed?
@@ -111,7 +111,11 @@
     // 01A6: odometer (this one is very new I think)
     int getRequestedData()
     {
-      if (this->lastRequestSuccess && !this->obdBusy) {
+      // read response from Serial1
+      this->getObd2Response();
+
+      // if a success, return calculated results
+      if (this->lastRequestSuccess) {
         if (this->lastRequestPid == SHORT_TERM_FUEL_TRIM_BANK_1) {
           // get short term fuel trim, bank 1: -100 (reduce fuel, too rich) - 99.2 (add fuel, too lean)
           // PID 0106
@@ -135,7 +139,7 @@
         } else if (this->lastRequestPid == AIR_INTAKE_TEMP) {
           // get intake air temperature: -40 - 215 °C
           // PID 010F
-          return strtol(&rxData[6], 0, 16);
+          return strtol(&rxData[6], 0, 16) - 40;
         } else if (this->lastRequestPid == RUN_TIME_SINCE_ENGINE_START) {
           // get run time since engine start: 0 - 65,535 seconds
           // PID 011F
@@ -178,7 +182,6 @@
         }
       } else {
         // use -999 as "failed data request error" for now
-        // TODO: Likely better way to do this (otherwise not used because lastRequestSucceeded() is being used)
         return -999;
       }
     }
