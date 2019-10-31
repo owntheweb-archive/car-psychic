@@ -7,12 +7,14 @@
 #include <SFE_MicroOLED.h>  // Include the SparkFun MicroOLED library
 #include <SparkFun_RV1805.h> // Include SparkFun Real Time Clock (RTC) library
 #include <SparkFun_Qwiic_OpenLog_Arduino_Library.h> // Include SparkFun OpenLog library
+#include <SparkFun_Qwiic_Button.h> // Include SparkFun Qwiic button library
 
 #include "OledWarpField.h" // A star warp field for SparkFun Micro OLED Qwiic
 #include "OledOilChangePrediction.h" // Show hours/days prediction to the next oil change on a SparkFun Micro OLED Qwiic
 #include "OledTroubleCodes.h" // Cycle through active trouble code alerts on a SparkFun Micro OLED Qwiic
 #include "Obd2.h" // Communicate with the car via SparkFun Car OBD-II UART
 #include "DataLogger.h" // Log car data with SparkFun OpenLog Qwiic, SparkFun Real Time Clock Module - RV-1805 (Qwiic) and SparkFun OBD-II UART
+#include "Button1.h" // Uses SparkFun Qwiic Button to detect short clicks and long presses
 
 // set state of app, determining what will be displayed
 const byte STATE_OIL_CHANGE_PREDICTION = 0;
@@ -37,6 +39,9 @@ OledWarpField* oledWarpField;
 // declare OledTroubleCodes class
 String troubleCodes[10]; // make room for up to 10 trouble codes for now
 OledTroubleCodes* oledTroubleCodes;
+
+// Button1 setup
+Button1* button1;
 
 // declare RTC clock
 // Note: init class later as Wire (I2C communication) is initialized at this level with higher speed set, also
@@ -74,6 +79,10 @@ void setup() {
 
   // SparkFun RTC setup
   setupRtc();
+
+  // Button1 setup
+  button1 = new Button1();
+  button1->setup();
 
   // OBD-II UART setup
   obd2 = new Obd2();
@@ -114,6 +123,8 @@ void setup() {
 void loop() {
   oled->clear(PAGE);  // Clear the OLED buffer
   //checkForTroubleCodes();
+  manageButtonActions();
+  button1->loop();
   obd2->loop();
   dataLogger->loop();
   oledWarpField->loop();
@@ -179,7 +190,8 @@ void setupRtc()
 }
 
 // set state of the app
-void setState(byte newState) {
+void setState(byte newState)
+{
   switch (newState)
   {
     case STATE_OIL_CHANGE_PREDICTION:
@@ -196,4 +208,25 @@ void setState(byte newState) {
       Serial.println("An unknown state attempted to be set.");
   }
   state = newState;
+}
+
+// advance screen and clear trouble codes with button
+// WARNING: Resetting trouble codes also clears captured test data helpful to mechanics and required for emissions tests (specific conditions required to recapture over time)
+// RESET TROUBLE CODES AT YOUR OWN RISK WITH LONG 5 SECOND PRESS!
+void manageButtonActions()
+{
+  if (button1->getIsShortClicked() == true) {
+    // TODO: advance screen
+    delay(150); // delay for tactile feedback
+    // TODO: less than 150 is causing a multiple resets, more eligant way to do this?
+    button1->resetButtonStatus();
+  }
+
+  // reset trouble codes (tested car for this experiment had miles since last MIL maxed out and needed reset in order to count miles via generic OBD-II)
+  if (button1->getIsLongPressed() == true) {
+    obd2->makePidRequest(obd2->CLEAR_TROUBLE_CODES);
+    delay(150); // delay for visual feedback
+    // TODO: less than 150 is causing a multiple resets, more eligant way to do this?
+    button1->resetButtonStatus();
+  }
 }

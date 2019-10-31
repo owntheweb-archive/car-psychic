@@ -35,6 +35,7 @@
     const String TIME_RUN_WITH_MIL_ON = "014D";
     const String TIME_SINCE_TROUBLE_CODES_CLEARED = "014E";
     const String ABSOLUTE_EVAP_SYSTEM_VAPOR_PRESSURE = "0153";
+    const String CLEAR_TROUBLE_CODES = "0400"; // WARNING: USE AT YOUR OWN RISK: ALSO CLEARS TEST DATA USED BY MECHANICS AND EMISSIONS TESTS
     String lastRequestPid;
     bool lastRequestSuccess;
     
