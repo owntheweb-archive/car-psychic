@@ -223,10 +223,10 @@ void manageButtonActions()
   }
 
   // reset trouble codes (tested car for this experiment had miles since last MIL maxed out and needed reset in order to count miles via generic OBD-II)
+  // TODO: continuing to hold button down causes sequence to restart, would be nice to require a new press to do this
   if (button1->getIsLongPressed() == true) {
     obd2->makePidRequest(obd2->CLEAR_TROUBLE_CODES);
-    delay(150); // delay for visual feedback
-    // TODO: less than 150 is causing a multiple resets, more eligant way to do this?
+    delay(2000); // delay for visual feedback
     button1->resetButtonStatus();
   }
 }
